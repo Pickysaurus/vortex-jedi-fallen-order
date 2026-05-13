@@ -76,7 +76,7 @@ jobs:
       - name: Upload dist zip artifact
         uses: actions/upload-artifact@v4
         with:
-          name: "Star Wars: Jedi Fallen Order Support"
+          name: Star Wars Jedi Fallen Order Support
           path: ${{ steps.meta.outputs.zip_name }}
           if-no-files-found: error
   upload:
@@ -91,14 +91,14 @@ jobs:
       - name: Get Extension Artifact
         uses: actions/download-artifact@v4
         with:
-          name: "Star Wars: Jedi Fallen Order Support"
+          name: Star Wars Jedi Fallen Order Support
 
       - name: Upload to Nexus Mods
         uses: Nexus-Mods/upload-action@main
         with:
           api_key: ${{ secrets.NEXUSMODS_API_KEY }}
           file_group_id: ${{ vars.NEXUSMODS_FILE_GROUP }}
-          display_name: "Star Wars: Jedi Fallen Order Support"
+          display_name: "Star Wars Jedi: Fallen Order Support"
           filename: ${{ needs.build.outputs.zip_name }}
           version: ${{ github.event.inputs.version || needs.build.outputs.version }}
 
