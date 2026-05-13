@@ -98,7 +98,7 @@ jobs:
         with:
           api_key: ${{ secrets.NEXUSMODS_API_KEY }}
           file_group_id: ${{ vars.NEXUSMODS_FILE_GROUP }}
-          display_name: "Star Wars Jedi: Fallen Order Support"
+          display_name: "Star Wars Jedi Fallen Order Support"
           filename: ${{ needs.build.outputs.zip_name }}
           version: ${{ github.event.inputs.version || needs.build.outputs.version }}
 
