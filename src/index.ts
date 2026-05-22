@@ -52,11 +52,12 @@ function main(context: types.IExtensionContext) {
     context.registerLoadOrderPage({
         gameId: NEXUSMODS_ID,
         gameArtURL: `${__dirname}\\gameart.jpg`,
-        preSort: (items, direction) => loadorder.preSort(context.api, items, direction),
+        preSort: (items, direction) => loadorder.preSort(context.api, items, direction) as any,
         filter: loadorder.filter,
         displayCheckboxes: false,
         callback: (lo) => loadorder.callback(context.api, lo),
-        createInfoPanel: () => loadorder.infoPanel({ api: context.api }),
+        // Convert to unknown and then ComponentType to satisfy Vortex-api's super old react implementation.
+        createInfoPanel: () => loadorder.infoPanel({ api: context.api }) as unknown as React.ComponentType<{}>,
     });
 }
 

@@ -27,7 +27,7 @@ async function install(api: types.IExtensionApi, files: string[]) {
 
   const pakFiles = files.filter(file => path.extname(file).toLowerCase() === MOD_FILE_EXT).map(pak => path.basename(pak));
 
-  if (pakFiles.length > 1) return await Promise.resolve(choosePaksToInstall(api, pakFiles));
+  if (pakFiles.length > 1) return await Promise.resolve(choosePaksToInstall(api, pakFiles, files));
 
   const instructions: types.IInstruction[] = filtered.map(file => {
     return {
@@ -46,46 +46,49 @@ async function install(api: types.IExtensionApi, files: string[]) {
   return Promise.resolve({ instructions });
 }
 
-async function choosePaksToInstall(api, paks) {
-  return api.showDialog('question', 'Multiple PAK files', 
-  {
-    text: `The mod you are installing contains ${paks.length} PAK files.`+
-    `This can be because the author intended for you to chose one of several options. Please select which files to install below:`,
-    checkboxes: paks.map(pak => {
-      return {
-        id: path.basename(pak),
-        text: path.basename(pak)
-      }
-    })
-  },
-  [
-    { label: 'Cancel' },
-    { label: 'Install Selected' },
-    { label: 'Install All_plural' }
-  ]
-  ).then((result) => {
-    if (result.action === 'Cancel') return Promise.reject( new util.ProcessCanceled('User cancelled.') );
-    else {
-      const installAll = (result.action === 'Install All' || result.action === 'Install All_plural');
-      const installPAKS = installAll ? paks : Object.keys(result.input).filter(s => result.input[s]);
+async function choosePaksToInstall(api: types.IExtensionApi, paks: string[], allFiles: string[]): Promise<types.IInstallResult> {
+  if (!api.showDialog) throw new Error('Unable to display PAK selection dialogue due to Vortex API changes.');
 
-      const instructions = installPAKS.map(pak => {
-        return {
-          type: 'copy',
-          source: pak,
-          destination: pak
-        }
-      });
+  try {
+    const checkboxes = paks.map((p, i) => ({ id: p, text: p, value: i === 0 }));
+    const userChoice = await api.showDialog(
+      'question', 
+      'Multiple PAK files', 
+      {
+        text: `The mod you are installing contains ${paks.length} PAK files.`
+          + `This can be because the author intended for you to chose one of several options. Please select which files to install below:`,
+        checkboxes
+      },
+      [
+        { label: 'Cancel' },
+        { label: 'Install Selected' },
+        { label: 'Install All_plural' }
+      ]
+    );
+    const { action, input }: { action: string, input: { [key: string]: boolean } } = userChoice;
+    if (action === 'Cancel') return Promise.reject( new util.ProcessCanceled('User cancelled.') );
+    const shouldInstallAll = (action === 'Install All' || action === 'Install All_plural');
+    const paksToInstall = shouldInstallAll ? paks : Object.keys(input).filter(k => input[k]);
 
-      instructions.push({
-        type: "attribute",
-        key: 'pakFiles',
-        value: paks
-      });
+    const instructions: types.IInstruction[] = paksToInstall.map(pak => {
+      const base = path.basename(pak, '.pak').toLowerCase();
+      const relatedFiles = allFiles.filter(f => path.basename(f).toLowerCase().startsWith(base));
+      const subInstructions: types.IInstruction[] = relatedFiles.map(rf => ({ type: 'copy', source: rf, destination: rf }))
+      return subInstructions;
+    }).flat();
 
-      return Promise.resolve({instructions});
-    }
-  });
+    instructions.push({
+      type: "attribute",
+      key: 'pakFiles',
+      value: paksToInstall
+    });
+
+    return Promise.resolve({ instructions });
+
+  }
+  catch(e: unknown){
+    return Promise.reject( new util.DataInvalid(`Unexpected Error ${(e as Error)?.message}`) );
+  }
 }
 
 export default { test, install };

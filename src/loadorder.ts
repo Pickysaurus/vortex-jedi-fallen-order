@@ -3,9 +3,10 @@ import { NEXUSMODS_ID } from "./common";
 import { types } from "vortex-api";
 import { selectors } from "vortex-api";
 import LoadOrderPanel from './loadorder-infopanel';
-import * as Bluebird from 'bluebird'; // Bluebird cannot be avoided for load order implementation
 
-async function preSort(api: types.IExtensionApi, items: types.ILoadOrderDisplayItem[], direction: types.SortType): Bluebird<types.ILoadOrderDisplayItem[]> {
+const preSortBlue = util.toBlue(preSort);
+
+async function preSort(api: types.IExtensionApi, items: types.ILoadOrderDisplayItem[], direction: types.SortType): Promise<types.ILoadOrderDisplayItem[]> {
     const mods = util.getSafe(api.getState(), ['persistent', 'mods', NEXUSMODS_ID], {});
 
     const loadOrder = items.map(mod => {
@@ -21,7 +22,7 @@ async function preSort(api: types.IExtensionApi, items: types.ILoadOrderDisplayI
         }
     });
 
-    return Bluebird.resolve(
+    return Promise.resolve(
         direction === 'descending' 
         ? loadOrder.reverse() 
         : loadOrder 
@@ -67,4 +68,10 @@ function filter(mods: types.IMod[]) {
     return mods.filter(mod => mod.type === 'starwarsjedi-pak-modtype')
 }
 
-export default { preSort, createPrefix, callback, infoPanel: LoadOrderPanel, filter };
+export default { 
+  preSort: preSortBlue, 
+  createPrefix, 
+  callback, 
+  infoPanel: LoadOrderPanel, 
+  filter 
+};
