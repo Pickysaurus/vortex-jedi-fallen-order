@@ -70,8 +70,8 @@ async function findGame() {
     return detected;
 }
 
-async function prepareForModding() {
-    return fs.ensureDirWritableAsync(MOD_FOLDER, () => Promise.resolve());
+async function prepareForModding(discovery: types.IDiscoveryResult) {
+    return fs.ensureDirWritableAsync(path.join(discovery.path, MOD_FOLDER), () => Promise.resolve());
 }
 
 export default main;

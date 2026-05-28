@@ -1,6 +1,6 @@
 {
   "name": "vortex-jedi-fallen-order",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "A Vortex extension for Star Wars Jedi: Fallen Order featuring mod management and load order support.",
   "main": "index.js",
   "scripts": {
