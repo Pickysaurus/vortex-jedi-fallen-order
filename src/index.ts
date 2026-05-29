@@ -1,4 +1,5 @@
 import { fs, types, util } from 'vortex-api';
+import path from 'path';
 import { EPICAPP_ID, EXE_PATH, MOD_FOLDER, NEXUSMODS_ID, ORIGINAPP_ID, STEAMAPP_ID } from './common';
 import installer from './installer-starwarsjedi-mod';
 import modtype from './modtype-starwarsjedi-pak-modtype';
