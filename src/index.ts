@@ -1,4 +1,4 @@
-import { fs, types, util } from 'vortex-api';
+import { fs, log, types, util } from 'vortex-api';
 import path from 'path';
 import { EPICAPP_ID, EXE_PATH, MOD_FOLDER, NEXUSMODS_ID, ORIGINAPP_ID, STEAMAPP_ID } from './common';
 import installer from './installer-starwarsjedi-mod';
@@ -72,6 +72,7 @@ async function findGame() {
 }
 
 async function prepareForModding(discovery: types.IDiscoveryResult) {
+    if (!discovery.path) return log('warn', `Attempted to managed Fallen Order but Discovery Path was undefined`, discovery);
     return fs.ensureDirWritableAsync(path.join(discovery.path, MOD_FOLDER), () => Promise.resolve());
 }
 
